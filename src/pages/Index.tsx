@@ -195,6 +195,7 @@ export default function Index() {
   });
   const [commentInputs, setCommentInputs] = useState<Record<number, string>>({});
   const [showCommentModal, setShowCommentModal] = useState(false);
+  const [openAdId, setOpenAdId] = useState<number | null>(null);
   const [adFilter, setAdFilter] = useState<string>("Все");
   const [phoneSearch, setPhoneSearch] = useState("");
   const [chatInput, setChatInput] = useState("");
@@ -268,6 +269,8 @@ export default function Index() {
   useEffect(() => {
     if (tab === "news") setNewNewsCount(0);
     if (tab === "chat") setUnreadChat(0);
+    if (tab !== "news") setOpenNewsId(null);
+    if (tab !== "ads") setOpenAdId(null);
   }, [tab]);
 
   const navItems: { id: Tab; icon: string; label: string }[] = [
@@ -353,6 +356,7 @@ export default function Index() {
   };
 
   const openedNews = openNewsId !== null ? news.find(n => n.id === openNewsId) ?? null : null;
+  const openedAd = openAdId !== null ? ads.find(a => a.id === openAdId) ?? null : null;
 
   const timeAgo = lastUpdated.toLocaleTimeString("ru", { hour: "2-digit", minute: "2-digit" });
 
@@ -376,8 +380,26 @@ export default function Index() {
                   <span className="text-white/60 text-xs">{openedNews.date}</span>
                 </div>
               </div>
-              <span className={`ml-2 shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-white/15 text-white`}>
+              <span className="ml-2 shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-white/15 text-white">
                 {openedNews.category}
+              </span>
+            </>
+          ) : openedAd ? (
+            <>
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <button
+                  onClick={() => setOpenAdId(null)}
+                  className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 active:opacity-70"
+                >
+                  <Icon name="ArrowLeft" size={17} className="text-white" />
+                </button>
+                <div className="min-w-0">
+                  <p className="text-white font-semibold text-sm leading-tight truncate">{openedAd.title}</p>
+                  <span className="text-white/60 text-xs">{openedAd.author} · {openedAd.date}</span>
+                </div>
+              </div>
+              <span className="ml-2 shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-white/15 text-white">
+                {openedAd.category}
               </span>
             </>
           ) : (
@@ -593,7 +615,7 @@ export default function Index() {
         })()}
 
         {/* ── ОБЪЯВЛЕНИЯ ── */}
-        {tab === "ads" && (
+        {tab === "ads" && !openedAd && (
           <div className="animate-fade-in">
             <div className="px-4 pt-5 pb-2 flex items-center justify-between">
               <div>
@@ -629,8 +651,9 @@ export default function Index() {
               {filteredAds.map((ad, i) => (
                 <div
                   key={ad.id}
-                  className={`bg-card rounded-lg border shadow-sm overflow-hidden ${ad.isNew ? "border-primary/40 animate-new-item" : "border-border animate-slide-up"}`}
+                  className={`bg-card rounded-lg border shadow-sm overflow-hidden cursor-pointer active:scale-[0.99] transition-all ${ad.isNew ? "border-primary/40 animate-new-item" : "border-border animate-slide-up"}`}
                   style={!ad.isNew ? { animationDelay: `${i * 0.05}s`, opacity: 0, animationFillMode: "forwards" } : undefined}
+                  onClick={() => setOpenAdId(ad.id)}
                 >
                   {ad.isNew && (
                     <div className="bg-primary/5 border-b border-primary/10 px-4 py-1.5 flex items-center gap-1.5">
@@ -644,18 +667,15 @@ export default function Index() {
                       <span className="text-[11px] text-muted-foreground">{ad.date}</span>
                     </div>
                     <h3 className="font-semibold text-foreground text-[15px]">{ad.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{ad.text}</p>
+                    <p className="text-sm text-muted-foreground mt-1 leading-relaxed line-clamp-2">{ad.text}</p>
                     <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-border/60">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Icon name="User" size={12} />
                         <span>{ad.author}</span>
                       </div>
-                      {ad.phone && (
-                        <a href={`tel:${ad.phone}`} className="flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1.5 rounded-md">
-                          <Icon name="Phone" size={12} />
-                          {ad.phone}
-                        </a>
-                      )}
+                      <div className="flex items-center gap-1 text-primary text-xs font-semibold">
+                        Подробнее <Icon name="ChevronRight" size={13} />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -663,6 +683,90 @@ export default function Index() {
             </div>
           </div>
         )}
+
+        {/* ── ОБЪЯВЛЕНИЯ: страница ── */}
+        {tab === "ads" && openedAd && (() => {
+          const ad = openedAd;
+          const phone = ad.phone;
+          const phoneClean = phone ? phone.replace(/\D/g, "") : "";
+          const tgLink = phone ? `https://t.me/+${phoneClean}` : null;
+          const waLink = phone ? `https://wa.me/${phoneClean}` : null;
+          return (
+            <div className="animate-fade-in">
+              <div className="px-4 pt-5 pb-32">
+                {/* Категория + дата */}
+                <div className="flex items-center justify-between mb-3">
+                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded ${categoryColor[ad.category] || "bg-gray-100 text-gray-600"}`}>{ad.category}</span>
+                  <span className="text-[11px] text-muted-foreground">{ad.date}</span>
+                </div>
+
+                {/* Заголовок */}
+                <h1 className="text-[21px] font-bold text-foreground leading-snug mb-4">{ad.title}</h1>
+
+                {/* Текст */}
+                <p className="text-[15px] text-foreground leading-relaxed">{ad.text}</p>
+
+                {/* Автор */}
+                <div className="mt-6 flex items-center gap-3 bg-muted/50 rounded-lg px-4 py-3 border border-border/60">
+                  <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                    <span className="text-primary font-bold text-sm">{ad.author[0]}</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{ad.author}</p>
+                    <p className="text-xs text-muted-foreground">Автор объявления</p>
+                  </div>
+                </div>
+
+                {/* Телефон */}
+                {phone && (
+                  <div className="mt-4 bg-card border border-border rounded-lg px-4 py-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-0.5">Номер телефона</p>
+                      <p className="text-[15px] font-semibold text-foreground tracking-wide">{phone}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {tgLink && (
+                        <a
+                          href={tgLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-9 h-9 rounded-lg bg-sky-100 dark:bg-sky-950 flex items-center justify-center active:opacity-70"
+                          title="Telegram"
+                        >
+                          <Icon name="Send" size={16} className="text-sky-500" />
+                        </a>
+                      )}
+                      {waLink && (
+                        <a
+                          href={waLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-9 h-9 rounded-lg bg-green-100 dark:bg-green-950 flex items-center justify-center active:opacity-70"
+                          title="WhatsApp"
+                        >
+                          <Icon name="MessageCircle" size={16} className="text-green-500" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Кнопка позвонить — фиксированная внизу */}
+              {phone && (
+                <div className="fixed bottom-[72px] left-1/2 -translate-x-1/2 w-full max-w-lg px-4 pb-3 z-30">
+                  <a
+                    href={`tel:${phone}`}
+                    className="flex items-center justify-center gap-2.5 w-full bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-bold text-[16px] py-4 rounded-xl shadow-lg shadow-green-500/30 transition-all active:scale-[0.98]"
+                  >
+                    <Icon name="Phone" size={20} className="text-white" />
+                    Позвонить
+                  </a>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* ── ТЕЛЕФОННАЯ КНИГА ── */}
         {tab === "phonebook" && (
