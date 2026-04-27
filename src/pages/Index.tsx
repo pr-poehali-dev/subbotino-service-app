@@ -37,6 +37,7 @@ interface Ad {
   category: string;
   status: AdStatus;
   phone?: string;
+  photo?: string;
   isNew?: boolean;
 }
 
@@ -204,7 +205,8 @@ export default function Index() {
   const [news, setNews] = useState<NewsItem[]>(NEWS_POOL);
   const [profileMyAdsOpen, setProfileMyAdsOpen] = useState(false);
   const [showNewAd, setShowNewAd] = useState(false);
-  const [newAd, setNewAd] = useState({ title: "", text: "", category: "Продам", phone: "" });
+  const [newAd, setNewAd] = useState({ title: "", text: "", category: "Продам", phone: "", photo: "" });
+  const newAdFileRef = useRef<HTMLInputElement>(null);
   const [onlineCount, setOnlineCount] = useState(24);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [isLive, setIsLive] = useState(true);
@@ -322,10 +324,19 @@ export default function Index() {
       category: newAd.category,
       status: "pending",
       phone: newAd.phone || undefined,
+      photo: newAd.photo || undefined,
       isNew: true,
     }, ...prev]);
-    setNewAd({ title: "", text: "", category: "Продам", phone: "" });
+    setNewAd({ title: "", text: "", category: "Продам", phone: "", photo: "" });
     setShowNewAd(false);
+  };
+
+  const handleAdPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => setNewAd(p => ({ ...p, photo: ev.target?.result as string }));
+    reader.readAsDataURL(file);
   };
 
   const pendingAds = ads.filter(a => a.status === "pending");
@@ -666,8 +677,17 @@ export default function Index() {
                       <span className={`text-[11px] font-semibold px-2 py-0.5 rounded ${categoryColor[ad.category] || "bg-gray-100 text-gray-600"}`}>{ad.category}</span>
                       <span className="text-[11px] text-muted-foreground">{ad.date}</span>
                     </div>
-                    <h3 className="font-semibold text-foreground text-[15px]">{ad.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1 leading-relaxed line-clamp-2">{ad.text}</p>
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-foreground text-[15px]">{ad.title}</h3>
+                        <p className="text-sm text-muted-foreground mt-1 leading-relaxed line-clamp-2">{ad.text}</p>
+                      </div>
+                      {ad.photo && (
+                        <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-border">
+                          <img src={ad.photo} alt={ad.title} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
                     <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-border/60">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Icon name="User" size={12} />
@@ -702,6 +722,13 @@ export default function Index() {
 
                 {/* Заголовок */}
                 <h1 className="text-[21px] font-bold text-foreground leading-snug mb-4">{ad.title}</h1>
+
+                {/* Фото */}
+                {ad.photo && (
+                  <div className="mb-4 rounded-xl overflow-hidden border border-border shadow-sm">
+                    <img src={ad.photo} alt={ad.title} className="w-full object-cover max-h-72" />
+                  </div>
+                )}
 
                 {/* Текст */}
                 <p className="text-[15px] text-foreground leading-relaxed">{ad.text}</p>
@@ -1155,6 +1182,31 @@ export default function Index() {
                   />
                 </div>
               </div>
+              {/* Фото */}
+              <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1.5 block">Фото <span className="normal-case font-normal text-muted-foreground/60">(необязательно)</span></label>
+                <input ref={newAdFileRef} type="file" accept="image/*" className="hidden" onChange={handleAdPhoto} />
+                {newAd.photo ? (
+                  <div className="relative rounded-xl overflow-hidden">
+                    <img src={newAd.photo} alt="preview" className="w-full h-44 object-cover rounded-xl" />
+                    <button
+                      onClick={() => setNewAd(p => ({ ...p, photo: "" }))}
+                      className="absolute top-2 right-2 w-7 h-7 bg-black/50 rounded-full flex items-center justify-center"
+                    >
+                      <Icon name="X" size={14} className="text-white" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => newAdFileRef.current?.click()}
+                    className="w-full h-24 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-1.5 text-muted-foreground active:opacity-70 transition-opacity"
+                  >
+                    <Icon name="ImagePlus" size={22} />
+                    <span className="text-xs font-medium">Добавить фото</span>
+                  </button>
+                )}
+              </div>
+
               <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2.5">
                 <Icon name="Info" size={14} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700 dark:text-amber-300">Объявление будет опубликовано после проверки модератором</p>
