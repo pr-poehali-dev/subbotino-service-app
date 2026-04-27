@@ -433,52 +433,48 @@ export default function Index() {
                 </div>
               )}
             </div>
-            <div className="px-4 space-y-3 pb-4">
+            <div className="px-4 space-y-2.5 pb-4">
               {news.map((item, i) => {
                 const r = getReaction(item.id);
                 const comments = newsComments[item.id] || [];
                 return (
                   <div
                     key={item.id}
-                    className={`bg-card rounded-xl border overflow-hidden cursor-pointer active:scale-[0.99] transition-transform ${item.isNew ? "border-primary/40 animate-new-item" : "border-border"}`}
+                    className={`bg-card rounded-lg border overflow-hidden cursor-pointer active:scale-[0.99] transition-all shadow-sm ${item.isNew ? "border-primary/40 animate-new-item" : "border-border"}`}
                     style={!item.isNew ? { animationDelay: `${i * 0.05}s`, opacity: 0, animation: "slideUp 0.35s ease forwards" } : undefined}
                     onClick={() => setOpenNewsId(item.id)}
                   >
-                    {item.pinned && (
-                      <div className="bg-primary/8 border-b border-primary/15 px-4 py-1.5 flex items-center gap-1.5">
-                        <Icon name="Pin" size={12} className="text-primary" />
-                        <span className="text-xs font-medium text-primary">Закреплено</span>
+                    {(item.pinned || item.isNew) && (
+                      <div className={`px-4 py-1.5 flex items-center gap-1.5 ${item.pinned ? "bg-primary/8 border-b border-primary/10" : "bg-primary/5 border-b border-primary/10"}`}>
+                        {item.pinned
+                          ? <><Icon name="Pin" size={11} className="text-primary" /><span className="text-xs font-medium text-primary">Закреплено</span></>
+                          : <><span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse inline-block" /><span className="text-xs font-semibold text-primary">Новое</span></>
+                        }
                       </div>
                     )}
-                    {item.isNew && (
-                      <div className="bg-primary/8 border-b border-primary/15 px-4 py-1.5 flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse inline-block" />
-                        <span className="text-xs font-semibold text-primary">Новое</span>
-                      </div>
-                    )}
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${categoryColor[item.category] || "bg-gray-100 text-gray-600"}`}>
+                    <div className="px-4 pt-3.5 pb-3">
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded ${categoryColor[item.category] || "bg-gray-100 text-gray-600"}`}>
                           {item.category}
                         </span>
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">{item.date}</span>
+                        <span className="text-[11px] text-muted-foreground whitespace-nowrap">{item.date}</span>
                       </div>
                       <h3 className="font-semibold text-foreground text-[15px] leading-snug">{item.title}</h3>
-                      <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-border">
+                      <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-border/60">
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Icon name="ThumbsUp" size={13} className={r.myVote === "like" ? "text-primary" : ""} />
+                          <Icon name="ThumbsUp" size={12} className={r.myVote === "like" ? "text-primary" : ""} />
                           <span className={r.myVote === "like" ? "text-primary font-semibold" : ""}>{r.likes}</span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Icon name="ThumbsDown" size={13} className={r.myVote === "dislike" ? "text-destructive" : ""} />
+                          <Icon name="ThumbsDown" size={12} className={r.myVote === "dislike" ? "text-destructive" : ""} />
                           <span className={r.myVote === "dislike" ? "text-destructive font-semibold" : ""}>{r.dislikes}</span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Icon name="MessageSquare" size={13} />
+                          <Icon name="MessageSquare" size={12} />
                           <span>{comments.length}</span>
                         </div>
                         <div className="ml-auto flex items-center gap-1 text-primary text-xs font-semibold">
-                          Читать <Icon name="ChevronRight" size={14} />
+                          Читать <Icon name="ChevronRight" size={13} />
                         </div>
                       </div>
                     </div>
@@ -511,7 +507,7 @@ export default function Index() {
                 <div className="mt-6 flex items-center gap-3">
                   <button
                     onClick={() => vote(item.id, "like")}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all active:scale-95 ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all active:scale-95 ${
                       r.myVote === "like"
                         ? "bg-primary text-white border-primary shadow-sm"
                         : "bg-card border-border text-muted-foreground"
@@ -522,7 +518,7 @@ export default function Index() {
                   </button>
                   <button
                     onClick={() => vote(item.id, "dislike")}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all active:scale-95 ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all active:scale-95 ${
                       r.myVote === "dislike"
                         ? "bg-destructive text-white border-destructive shadow-sm"
                         : "bg-card border-border text-muted-foreground"
@@ -574,9 +570,9 @@ export default function Index() {
                     </div>
                   )}
 
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {comments.map(c => (
-                      <div key={c.id} className={`bg-card rounded-xl border p-3.5 ${c.author === "Вы" ? "border-primary/30 bg-primary/5 dark:bg-primary/10" : "border-border"}`}>
+                      <div key={c.id} className={`bg-card rounded-lg border p-3.5 shadow-sm ${c.author === "Вы" ? "border-primary/30 bg-primary/5 dark:bg-primary/10" : "border-border"}`}>
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${c.author === "Вы" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
@@ -623,7 +619,7 @@ export default function Index() {
                 </button>
               ))}
             </div>
-            <div className="px-4 mt-2 space-y-3 pb-4">
+            <div className="px-4 mt-2 space-y-2.5 pb-4">
               {filteredAds.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">
                   <Icon name="Tag" size={40} className="mx-auto mb-2 opacity-20" />
@@ -633,29 +629,34 @@ export default function Index() {
               {filteredAds.map((ad, i) => (
                 <div
                   key={ad.id}
-                  className={`bg-card rounded-xl border p-4 ${ad.isNew ? "border-primary/40 animate-new-item" : "border-border animate-slide-up"}`}
+                  className={`bg-card rounded-lg border shadow-sm overflow-hidden ${ad.isNew ? "border-primary/40 animate-new-item" : "border-border animate-slide-up"}`}
                   style={!ad.isNew ? { animationDelay: `${i * 0.05}s`, opacity: 0, animationFillMode: "forwards" } : undefined}
                 >
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${categoryColor[ad.category] || "bg-gray-100 text-gray-600"}`}>{ad.category}</span>
-                      {ad.isNew && <span className="text-xs font-semibold text-primary flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />Новое</span>}
+                  {ad.isNew && (
+                    <div className="bg-primary/5 border-b border-primary/10 px-4 py-1.5 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse inline-block" />
+                      <span className="text-xs font-semibold text-primary">Новое</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">{ad.date}</span>
-                  </div>
-                  <h3 className="font-semibold text-foreground text-[15px]">{ad.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{ad.text}</p>
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Icon name="User" size={13} />
-                      <span>{ad.author}</span>
+                  )}
+                  <div className="px-4 pt-3.5 pb-3">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded ${categoryColor[ad.category] || "bg-gray-100 text-gray-600"}`}>{ad.category}</span>
+                      <span className="text-[11px] text-muted-foreground">{ad.date}</span>
                     </div>
-                    {ad.phone && (
-                      <a href={`tel:${ad.phone}`} className="flex items-center gap-1.5 text-primary text-xs font-semibold">
-                        <Icon name="Phone" size={13} />
-                        {ad.phone}
-                      </a>
-                    )}
+                    <h3 className="font-semibold text-foreground text-[15px]">{ad.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{ad.text}</p>
+                    <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-border/60">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Icon name="User" size={12} />
+                        <span>{ad.author}</span>
+                      </div>
+                      {ad.phone && (
+                        <a href={`tel:${ad.phone}`} className="flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1.5 rounded-md">
+                          <Icon name="Phone" size={12} />
+                          {ad.phone}
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -688,7 +689,7 @@ export default function Index() {
                   </div>
                   <div className="space-y-2">
                     {contacts.map(c => (
-                      <div key={c.id} className={`bg-card rounded-xl border border-border border-l-4 ${deptBorderColor[c.department] || "border-l-gray-300"} p-3.5 flex items-center justify-between`}>
+                      <div key={c.id} className={`bg-card rounded-lg border border-border border-l-4 shadow-sm ${deptBorderColor[c.department] || "border-l-gray-300"} p-3.5 flex items-center justify-between`}>
                         <div>
                           <p className="font-semibold text-foreground text-sm leading-snug">{c.name}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{c.role}</p>
