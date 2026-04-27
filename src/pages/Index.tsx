@@ -536,6 +536,9 @@ export default function Index() {
                       {r.myVote === "like" ? "Понравилось" : "Не понравилось"}
                     </span>
                   )}
+                  <span className={`ml-auto text-xs font-medium px-2.5 py-1 rounded-full ${categoryColor[item.category] || "bg-gray-100 text-gray-600"}`}>
+                    {item.category}
+                  </span>
                 </div>
 
                 {/* Разделитель */}
