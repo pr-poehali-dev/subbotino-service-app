@@ -1,9 +1,22 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import Icon from "@/components/ui/icon";
 
 type Tab = "news" | "ads" | "phonebook" | "chat" | "profile";
 type AdStatus = "pending" | "approved" | "rejected";
 type AccentColor = "blue" | "green" | "red" | "violet" | "amber" | "teal";
+
+interface NewsComment {
+  id: number;
+  author: string;
+  text: string;
+  time: string;
+}
+
+interface NewsReactions {
+  likes: number;
+  dislikes: number;
+  myVote: "like" | "dislike" | null;
+}
 
 interface NewsItem {
   id: number;
@@ -169,7 +182,18 @@ function useThemeAndColor() {
 
 export default function Index() {
   const [tab, setTab] = useState<Tab>("news");
-  const [newsOpen, setNewsOpen] = useState<number | null>(null);
+  const [openNewsId, setOpenNewsId] = useState<number | null>(null);
+  const [newsReactions, setNewsReactions] = useState<Record<number, NewsReactions>>({});
+  const [newsComments, setNewsComments] = useState<Record<number, NewsComment[]>>({
+    1: [
+      { id: 1, author: "Иван П.", text: "Хорошо, что предупредили заранее. Запасусь водой.", time: "27 апр, 09:14" },
+      { id: 2, author: "Мария С.", text: "А пер. Берёзовый тоже отключат?", time: "27 апр, 10:30" },
+    ],
+    2: [
+      { id: 3, author: "Олег К.", text: "Буду! Главное — инвентарь нормальный дать, а не веники.", time: "25 апр, 14:05" },
+    ],
+  });
+  const [commentInputs, setCommentInputs] = useState<Record<number, string>>({});
   const [adFilter, setAdFilter] = useState<string>("Все");
   const [phoneSearch, setPhoneSearch] = useState("");
   const [chatInput, setChatInput] = useState("");
@@ -303,13 +327,39 @@ export default function Index() {
   const pendingAds = ads.filter(a => a.status === "pending");
   const myAds = ads.filter(a => a.author === "Вы");
 
+  const getReaction = (id: number): NewsReactions =>
+    newsReactions[id] ?? { likes: Math.floor(id * 3 + 2), dislikes: Math.floor(id * 0.5), myVote: null };
+
+  const vote = (id: number, type: "like" | "dislike") => {
+    setNewsReactions(prev => {
+      const cur = getReaction(id);
+      if (cur.myVote === type) {
+        return { ...prev, [id]: { ...cur, [type === "like" ? "likes" : "dislikes"]: (type === "like" ? cur.likes : cur.dislikes) - 1, myVote: null } };
+      }
+      const next = { ...cur, myVote: type };
+      if (type === "like") { next.likes = cur.likes + 1; if (cur.myVote === "dislike") next.dislikes = cur.dislikes - 1; }
+      else { next.dislikes = cur.dislikes + 1; if (cur.myVote === "like") next.likes = cur.likes - 1; }
+      return { ...prev, [id]: next };
+    });
+  };
+
+  const addComment = (newsId: number) => {
+    const text = (commentInputs[newsId] || "").trim();
+    if (!text) return;
+    const comment: NewsComment = { id: Date.now(), author: "Вы", text, time: new Date().toLocaleTimeString("ru", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) };
+    setNewsComments(prev => ({ ...prev, [newsId]: [...(prev[newsId] || []), comment] }));
+    setCommentInputs(prev => ({ ...prev, [newsId]: "" }));
+  };
+
+  const openedNews = openNewsId !== null ? news.find(n => n.id === openNewsId) ?? null : null;
+
   const timeAgo = lastUpdated.toLocaleTimeString("ru", { hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto relative">
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-primary shadow-md">
+      <header className={`sticky top-0 z-40 bg-primary shadow-md transition-all ${openedNews ? "hidden" : ""}`}>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -346,8 +396,8 @@ export default function Index() {
       {/* Content */}
       <main className="flex-1 overflow-y-auto pb-20">
 
-        {/* ── НОВОСТИ ── */}
-        {tab === "news" && (
+        {/* ── НОВОСТИ: список ── */}
+        {tab === "news" && !openedNews && (
           <div className="animate-fade-in">
             <div className="px-4 pt-5 pb-3 flex items-start justify-between">
               <div>
@@ -362,46 +412,181 @@ export default function Index() {
               )}
             </div>
             <div className="px-4 space-y-3 pb-4">
-              {news.map((item, i) => (
-                <div
-                  key={item.id}
-                  className={`bg-card rounded-xl border overflow-hidden cursor-pointer active:scale-[0.99] transition-transform ${item.isNew ? "border-primary/40 animate-new-item" : "border-border"}`}
-                  style={!item.isNew ? { animationDelay: `${i * 0.05}s`, opacity: 0, animation: "slideUp 0.35s ease forwards" } : undefined}
-                  onClick={() => setNewsOpen(newsOpen === item.id ? null : item.id)}
-                >
-                  {item.pinned && (
-                    <div className="bg-primary/8 border-b border-primary/15 px-4 py-1.5 flex items-center gap-1.5">
-                      <Icon name="Pin" size={12} className="text-primary" />
-                      <span className="text-xs font-medium text-primary">Закреплено</span>
-                    </div>
-                  )}
-                  {item.isNew && (
-                    <div className="bg-primary/8 border-b border-primary/15 px-4 py-1.5 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse inline-block" />
-                      <span className="text-xs font-semibold text-primary">Новое</span>
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${categoryColor[item.category] || "bg-gray-100 text-gray-600"}`}>
-                        {item.category}
-                      </span>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{item.date}</span>
-                    </div>
-                    <h3 className="font-semibold text-foreground text-[15px] leading-snug">{item.title}</h3>
-                    {newsOpen === item.id && (
-                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed animate-fade-in">{item.text}</p>
+              {news.map((item, i) => {
+                const r = getReaction(item.id);
+                const comments = newsComments[item.id] || [];
+                return (
+                  <div
+                    key={item.id}
+                    className={`bg-card rounded-xl border overflow-hidden cursor-pointer active:scale-[0.99] transition-transform ${item.isNew ? "border-primary/40 animate-new-item" : "border-border"}`}
+                    style={!item.isNew ? { animationDelay: `${i * 0.05}s`, opacity: 0, animation: "slideUp 0.35s ease forwards" } : undefined}
+                    onClick={() => setOpenNewsId(item.id)}
+                  >
+                    {item.pinned && (
+                      <div className="bg-primary/8 border-b border-primary/15 px-4 py-1.5 flex items-center gap-1.5">
+                        <Icon name="Pin" size={12} className="text-primary" />
+                        <span className="text-xs font-medium text-primary">Закреплено</span>
+                      </div>
                     )}
-                    <div className="flex items-center gap-1 mt-2 text-primary text-xs font-medium">
-                      <Icon name={newsOpen === item.id ? "ChevronUp" : "ChevronDown"} size={14} />
-                      {newsOpen === item.id ? "Свернуть" : "Читать"}
+                    {item.isNew && (
+                      <div className="bg-primary/8 border-b border-primary/15 px-4 py-1.5 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse inline-block" />
+                        <span className="text-xs font-semibold text-primary">Новое</span>
+                      </div>
+                    )}
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${categoryColor[item.category] || "bg-gray-100 text-gray-600"}`}>
+                          {item.category}
+                        </span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">{item.date}</span>
+                      </div>
+                      <h3 className="font-semibold text-foreground text-[15px] leading-snug">{item.title}</h3>
+                      <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-border">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Icon name="ThumbsUp" size={13} className={r.myVote === "like" ? "text-primary" : ""} />
+                          <span className={r.myVote === "like" ? "text-primary font-semibold" : ""}>{r.likes}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Icon name="ThumbsDown" size={13} className={r.myVote === "dislike" ? "text-destructive" : ""} />
+                          <span className={r.myVote === "dislike" ? "text-destructive font-semibold" : ""}>{r.dislikes}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Icon name="MessageSquare" size={13} />
+                          <span>{comments.length}</span>
+                        </div>
+                        <div className="ml-auto flex items-center gap-1 text-primary text-xs font-semibold">
+                          Читать <Icon name="ChevronRight" size={14} />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
+
+        {/* ── НОВОСТИ: страница ── */}
+        {tab === "news" && openedNews && (() => {
+          const item = openedNews;
+          const r = getReaction(item.id);
+          const comments = newsComments[item.id] || [];
+          const commentInput = commentInputs[item.id] || "";
+          return (
+            <div className="animate-fade-in flex flex-col">
+              {/* Топ-бар страницы */}
+              <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-3">
+                <button
+                  onClick={() => setOpenNewsId(null)}
+                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center active:opacity-70"
+                >
+                  <Icon name="ArrowLeft" size={16} className="text-foreground" />
+                </button>
+                <span className="text-sm font-semibold text-foreground truncate flex-1">Новости</span>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${categoryColor[item.category] || "bg-gray-100 text-gray-600"}`}>
+                  {item.category}
+                </span>
+              </div>
+
+              <div className="px-4 pt-5 pb-4">
+                {/* Шапка */}
+                {item.pinned && (
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <Icon name="Pin" size={13} className="text-primary" />
+                    <span className="text-xs font-semibold text-primary">Закреплено</span>
+                  </div>
+                )}
+                <h1 className="text-[20px] font-bold text-foreground leading-snug mb-2">{item.title}</h1>
+                <p className="text-xs text-muted-foreground mb-5">{item.date}</p>
+                <p className="text-[15px] text-foreground leading-relaxed">{item.text}</p>
+
+                {/* Лайки / дизлайки */}
+                <div className="mt-6 flex items-center gap-3">
+                  <button
+                    onClick={() => vote(item.id, "like")}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all active:scale-95 ${
+                      r.myVote === "like"
+                        ? "bg-primary text-white border-primary shadow-sm"
+                        : "bg-card border-border text-muted-foreground hover:border-primary/50"
+                    }`}
+                  >
+                    <Icon name="ThumbsUp" size={17} />
+                    <span className="font-semibold text-sm">{r.likes}</span>
+                  </button>
+                  <button
+                    onClick={() => vote(item.id, "dislike")}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all active:scale-95 ${
+                      r.myVote === "dislike"
+                        ? "bg-destructive text-white border-destructive shadow-sm"
+                        : "bg-card border-border text-muted-foreground hover:border-destructive/50"
+                    }`}
+                  >
+                    <Icon name="ThumbsDown" size={17} />
+                    <span className="font-semibold text-sm">{r.dislikes}</span>
+                  </button>
+                  {r.myVote && (
+                    <span className="text-xs text-muted-foreground ml-1 animate-fade-in">
+                      {r.myVote === "like" ? "Вам понравилось" : "Вам не понравилось"}
+                    </span>
+                  )}
+                </div>
+
+                {/* Комментарии */}
+                <div className="mt-7">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon name="MessageSquare" size={16} className="text-muted-foreground" />
+                    <h3 className="font-bold text-[15px] text-foreground">Комментарии</h3>
+                    <span className="ml-1 text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-semibold">{comments.length}</span>
+                  </div>
+
+                  {comments.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Icon name="MessageSquareDashed" size={32} className="mx-auto mb-2 opacity-30" />
+                      <p className="text-sm">Пока нет комментариев. Будьте первым!</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-3 mb-4">
+                    {comments.map(c => (
+                      <div key={c.id} className={`bg-card rounded-xl border border-border p-3.5 ${c.author === "Вы" ? "border-primary/30 bg-primary/5" : ""}`}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${c.author === "Вы" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                              {c.author[0]}
+                            </div>
+                            <span className="text-sm font-semibold text-foreground">{c.author}</span>
+                          </div>
+                          <span className="text-[11px] text-muted-foreground">{c.time}</span>
+                        </div>
+                        <p className="text-sm text-foreground leading-relaxed pl-8">{c.text}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Поле ввода */}
+                  <div className="flex gap-2 sticky bottom-24">
+                    <input
+                      type="text"
+                      placeholder="Написать комментарий..."
+                      value={commentInput}
+                      onChange={e => setCommentInputs(prev => ({ ...prev, [item.id]: e.target.value }))}
+                      onKeyDown={e => e.key === "Enter" && addComment(item.id)}
+                      className="flex-1 px-4 py-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-foreground placeholder:text-muted-foreground"
+                    />
+                    <button
+                      onClick={() => addComment(item.id)}
+                      disabled={!commentInput.trim()}
+                      className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shrink-0 disabled:opacity-40 active:opacity-80"
+                    >
+                      <Icon name="Send" size={15} className="text-white" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ── ОБЪЯВЛЕНИЯ ── */}
         {tab === "ads" && (
