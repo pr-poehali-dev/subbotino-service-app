@@ -77,30 +77,9 @@ const DARK_ACCENT: Record<AccentColor, string> = {
   teal:   "175 58% 48%",
 };
 
-const NEWS_POOL: NewsItem[] = [
-  { id: 1, title: "Плановое отключение воды 30 апреля", date: "27 апр", category: "ЖКХ", text: "В связи с проведением плановых ремонтных работ 30 апреля с 09:00 до 17:00 будет отключена подача холодной воды по ул. Центральной и пер. Садовому.", pinned: true },
-  { id: 2, title: "Субботник 3 мая — приглашаем всех!", date: "25 апр", category: "События", text: "Приглашаем всех жителей принять участие в общем субботнике. Встречаемся у администрации в 10:00." },
-  { id: 3, title: "Новое расписание автобуса №14", date: "20 апр", category: "Транспорт", text: "С 1 мая вводится новое расписание маршрута №14. Первый рейс 06:15, последний 22:30." },
-  { id: 4, title: "Праздник посёлка — 15 июня", date: "18 апр", category: "События", text: "В этом году день посёлка пройдёт 15 июня на центральной площади. Концерт, ярмарка, салют." },
-];
+const NEWS_POOL: NewsItem[] = [];
 
-const LIVE_NEWS: NewsItem[] = [
-  { id: 100, title: "Установлены новые фонари на ул. Лесной", date: "Только что", category: "Благоустройство", text: "Завершены работы по установке 12 новых LED-фонарей на ул. Лесной. Улица теперь освещена до конца." },
-  { id: 101, title: "Открытие новой аптеки в центре", date: "Только что", category: "Торговля", text: "В здании бывшего магазина «Берёзка» открылась аптека «Здоровье». Работает ежедневно 08:00–21:00." },
-  { id: 102, title: "Ремонт дороги на ул. Садовой завершён", date: "Только что", category: "Транспорт", text: "Ямочный ремонт на ул. Садовой выполнен полностью. Дорога открыта для движения." },
-];
-
-const INITIAL_ADS: Ad[] = [
-  { id: 1, title: "Продаю велосипед", text: "Горный велосипед, 2022 год, состояние хорошее. Цена 8 000 руб.", author: "Иван П.", date: "26 апр", category: "Продам", status: "approved", phone: "+7 912 345-67-89" },
-  { id: 2, title: "Сдам огород в аренду", text: "Участок 4 сотки, вода рядом, хорошая земля. На сезон.", author: "Мария С.", date: "25 апр", category: "Недвижимость", status: "approved", phone: "+7 903 111-22-33" },
-  { id: 3, title: "Куплю стройматериалы", text: "Куплю кирпич, блоки, доску б/у. Самовывоз.", author: "Олег К.", date: "24 апр", category: "Куплю", status: "pending" },
-  { id: 4, title: "Ищу помощника по дому", text: "Требуется помощь по уборке 2 раза в неделю.", author: "Нина В.", date: "23 апр", category: "Услуги", status: "approved", phone: "+7 921 777-55-44" },
-];
-
-const LIVE_ADS: Ad[] = [
-  { id: 200, title: "Продаю самокат детский", text: "Самокат для детей 5–8 лет, почти новый. 2 500 руб.", author: "Светлана К.", date: "Только что", category: "Продам", status: "approved", phone: "+7 913 000-11-22" },
-  { id: 201, title: "Предлагаю услуги сантехника", text: "Устраняю протечки, меняю краны и трубы. Быстро и качественно.", author: "Дмитрий Р.", date: "Только что", category: "Услуги", status: "approved", phone: "+7 952 333-44-55" },
-];
+const INITIAL_ADS: Ad[] = [];
 
 const CONTACTS: Contact[] = [
   { id: 1, name: "Администрация посёлка", role: "Приёмная", phone: "8 (383) 123-45-67", department: "Власть" },
@@ -115,22 +94,7 @@ const CONTACTS: Contact[] = [
   { id: 10, name: "Школа №1", role: "Директор Петрова М.А.", phone: "8 (383) 456-78-91", department: "Образование" },
 ];
 
-const INITIAL_MESSAGES: Message[] = [
-  { id: 1, author: "Администрация", text: "Напоминаем о субботнике 3 мая!", time: "10:02", mine: false },
-  { id: 2, author: "Иван П.", text: "Когда откроют детскую площадку на Садовой?", time: "10:15", mine: false },
-  { id: 3, author: "Вы", text: "Слышал, что в мае. Надо у администрации уточнить.", time: "10:18", mine: true },
-  { id: 4, author: "Мария С.", text: "Да, точно в мае. Уже завезли качели :)", time: "10:20", mine: false },
-  { id: 5, author: "Анон.", text: "купите у меня хлам дёшево !!!!", time: "10:22", mine: false, status: "flagged" },
-  { id: 6, author: "Олег К.", text: "Кто знает номер аварийной службы воды?", time: "11:05", mine: false },
-];
-
-const LIVE_MESSAGES = [
-  { author: "Татьяна В.", text: "Всем привет! Кто-нибудь видел потерявшегося рыжего кота?" },
-  { author: "Администрация", text: "Внимание: завтра плановое отключение света с 14:00 до 16:00." },
-  { author: "Павел М.", text: "Продаю излишки картофеля со своего огорода, 30 руб/кг" },
-  { author: "Елена Д.", text: "Спасибо за отремонтированную дорогу на Садовой, наконец-то!" },
-  { author: "Сергей Н.", text: "Завтра на остановке у школы пропало расписание автобуса" },
-];
+const INITIAL_MESSAGES: Message[] = [];
 
 const categoryColor: Record<string, string> = {
   "ЖКХ": "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
@@ -185,15 +149,7 @@ export default function Index() {
   const [tab, setTab] = useState<Tab>("news");
   const [openNewsId, setOpenNewsId] = useState<number | null>(null);
   const [newsReactions, setNewsReactions] = useState<Record<number, NewsReactions>>({});
-  const [newsComments, setNewsComments] = useState<Record<number, NewsComment[]>>({
-    1: [
-      { id: 1, author: "Иван П.", text: "Хорошо, что предупредили заранее. Запасусь водой.", time: "27 апр, 09:14" },
-      { id: 2, author: "Мария С.", text: "А пер. Берёзовый тоже отключат?", time: "27 апр, 10:30" },
-    ],
-    2: [
-      { id: 3, author: "Олег К.", text: "Буду! Главное — инвентарь нормальный дать, а не веники.", time: "25 апр, 14:05" },
-    ],
-  });
+  const [newsComments, setNewsComments] = useState<Record<number, NewsComment[]>>({});
   const [commentInputs, setCommentInputs] = useState<Record<number, string>>({});
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [openAdId, setOpenAdId] = useState<number | null>(null);
@@ -207,57 +163,12 @@ export default function Index() {
   const [showNewAd, setShowNewAd] = useState(false);
   const [newAd, setNewAd] = useState({ title: "", text: "", category: "Продам", phone: "", photo: "" });
   const newAdFileRef = useRef<HTMLInputElement>(null);
-  const [onlineCount, setOnlineCount] = useState(24);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [isLive, setIsLive] = useState(true);
   const [unreadChat, setUnreadChat] = useState(0);
   const [newNewsCount, setNewNewsCount] = useState(0);
+  const [adminSection, setAdminSection] = useState<"ads" | "all-ads" | "news" | "chat" | null>(null);
+  const [newNewsForm, setNewNewsForm] = useState({ title: "", text: "", category: "ЖКХ", pinned: false });
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const liveNewsIdx = useRef(0);
-  const liveAdsIdx = useRef(0);
-  const liveMsgIdx = useRef(0);
   const { dark, setDark, accent, setAccent } = useThemeAndColor();
-
-  // Real-time simulation
-  useEffect(() => {
-    if (!isLive) return;
-    const interval = setInterval(() => {
-      const roll = Math.random();
-
-      // New chat message every ~15s
-      if (roll < 0.4 && liveMsgIdx.current < LIVE_MESSAGES.length) {
-        const m = LIVE_MESSAGES[liveMsgIdx.current++];
-        const newMsg: Message = {
-          id: Date.now(),
-          author: m.author,
-          text: m.text,
-          time: new Date().toLocaleTimeString("ru", { hour: "2-digit", minute: "2-digit" }),
-          mine: false,
-          isNew: true,
-        };
-        setMessages(prev => [...prev, newMsg]);
-        if (tab !== "chat") setUnreadChat(n => n + 1);
-      }
-
-      // New news every ~25s
-      if (roll > 0.6 && liveNewsIdx.current < LIVE_NEWS.length) {
-        const item = { ...LIVE_NEWS[liveNewsIdx.current++], isNew: true };
-        setNews(prev => [item, ...prev]);
-        setNewNewsCount(n => n + 1);
-      }
-
-      // New ad every ~30s
-      if (roll > 0.45 && roll < 0.55 && liveAdsIdx.current < LIVE_ADS.length) {
-        const item = { ...LIVE_ADS[liveAdsIdx.current++], isNew: true };
-        setAds(prev => [item, ...prev]);
-      }
-
-      // Online count fluctuation
-      setOnlineCount(n => Math.max(18, Math.min(35, n + Math.round((Math.random() - 0.5) * 3))));
-      setLastUpdated(new Date());
-    }, 8000);
-    return () => clearInterval(interval);
-  }, [isLive, tab]);
 
   // Auto scroll chat
   useEffect(() => {
@@ -369,7 +280,7 @@ export default function Index() {
   const openedNews = openNewsId !== null ? news.find(n => n.id === openNewsId) ?? null : null;
   const openedAd = openAdId !== null ? ads.find(a => a.id === openAdId) ?? null : null;
 
-  const timeAgo = lastUpdated.toLocaleTimeString("ru", { hour: "2-digit", minute: "2-digit" });
+
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto relative">
@@ -421,19 +332,10 @@ export default function Index() {
                 </div>
                 <div>
                   <p className="text-white font-bold text-base leading-tight">Субботино</p>
-                  <div className="flex items-center gap-1.5">
-                    {isLive && <span className="animate-pulse-dot w-1.5 h-1.5 rounded-full bg-green-300 inline-block" />}
-                    <p className="text-white/60 text-xs">{isLive ? `обновлено ${timeAgo}` : "обновление отключено"}</p>
-                  </div>
+                  <p className="text-white/60 text-xs">Информационный портал</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsLive(v => !v)}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isLive ? "bg-white/10" : "bg-white/5"}`}
-                >
-                  <Icon name={isLive ? "Wifi" : "WifiOff"} size={15} className={isLive ? "text-green-300" : "text-white/40"} />
-                </button>
                 <button className="relative w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
                   <Icon name="Bell" size={16} className="text-white" />
                   {(unreadChat + newNewsCount) > 0 && (
@@ -848,8 +750,8 @@ export default function Index() {
                   <p className="text-xs text-muted-foreground mt-0.5">{messages.length} сообщений</p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-muted-foreground">{onlineCount} онлайн</span>
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  <span className="text-xs text-muted-foreground">{messages.length} сообщ.</span>
                 </div>
               </div>
               <div className="mt-2 flex items-center gap-2 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
@@ -967,21 +869,7 @@ export default function Index() {
                 )}
               </div>
 
-              {/* Уведомления */}
-              <div className="bg-card rounded-xl border border-border shadow-sm">
-                <div className="flex items-center justify-between px-4 py-3.5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-950 flex items-center justify-center">
-                      <Icon name="Bell" size={18} className="text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm text-foreground">Уведомления</p>
-                      <p className="text-xs text-muted-foreground">3 непрочитанных</p>
-                    </div>
-                  </div>
-                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">3</span>
-                </div>
-              </div>
+
 
               {/* ─── НАСТРОЙКИ ОФОРМЛЕНИЯ ─── */}
               <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
@@ -1028,72 +916,221 @@ export default function Index() {
                 </div>
               </div>
 
-              {/* Real-time toggle */}
-              <div className="bg-card rounded-xl border border-border shadow-sm">
-                <div className="px-4 py-3.5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isLive ? "bg-green-100 dark:bg-green-950" : "bg-muted"}`}>
-                      <Icon name={isLive ? "Wifi" : "WifiOff"} size={18} className={isLive ? "text-green-600 dark:text-green-400" : "text-muted-foreground"} />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm text-foreground">Обновление в реальном времени</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {isLive ? `Активно · обновлено в ${timeAgo}` : "Отключено"}
-                      </p>
-                    </div>
+              {/* ─── ПАНЕЛЬ АДМИНИСТРАТОРА ─── */}
+              <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                <div className="px-4 py-3.5 border-b border-border flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center">
+                    <Icon name="ShieldCheck" size={18} className="text-red-600 dark:text-red-400" />
                   </div>
-                  <button
-                    onClick={() => setIsLive(v => !v)}
-                    className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${isLive ? "bg-green-500" : "bg-muted"}`}
-                  >
-                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-300 ${isLive ? "translate-x-6" : "translate-x-0"}`} />
-                  </button>
+                  <p className="font-semibold text-sm text-foreground">Панель администратора</p>
                 </div>
-              </div>
 
-              {/* Модератор */}
-              <div className={`rounded-xl border overflow-hidden shadow-sm ${pendingAds.length > 0 ? "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800" : "bg-card border-border"}`}>
-                <div className="flex items-center justify-between px-4 py-3.5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center">
-                      <Icon name="Shield" size={18} className="text-amber-600 dark:text-amber-400" />
+                {/* Модерация объявлений */}
+                <div className="border-b border-border">
+                  <button
+                    onClick={() => setAdminSection(v => v === "ads" ? null : "ads")}
+                    className="w-full flex items-center justify-between px-4 py-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon name="Tag" size={15} className="text-amber-500" />
+                      <span className="text-sm font-medium text-foreground">Объявления на проверке</span>
                     </div>
-                    <div>
-                      <p className="font-semibold text-sm text-foreground">Панель модератора</p>
-                      <p className="text-xs text-muted-foreground">
-                        {pendingAds.length > 0 ? `${pendingAds.length} ждут проверки` : "Нет ожидающих"}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      {pendingAds.length > 0 && <span className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{pendingAds.length}</span>}
+                      <Icon name={adminSection === "ads" ? "ChevronUp" : "ChevronDown"} size={15} className="text-muted-foreground" />
                     </div>
-                  </div>
-                  {pendingAds.length > 0 && (
-                    <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{pendingAds.length}</span>
+                  </button>
+                  {adminSection === "ads" && (
+                    <div className="px-4 pb-3 space-y-2 animate-fade-in">
+                      {pendingAds.length === 0 && <p className="text-xs text-muted-foreground text-center py-3">Нет объявлений на проверке</p>}
+                      {pendingAds.map(ad => (
+                        <div key={ad.id} className="bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800 p-3">
+                          <p className="text-sm font-semibold text-foreground">{ad.title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{ad.text}</p>
+                          <p className="text-xs text-muted-foreground mt-1">от {ad.author} · {ad.date}</p>
+                          {ad.phone && <p className="text-xs text-muted-foreground">тел: {ad.phone}</p>}
+                          <div className="flex gap-2 mt-2.5">
+                            <button
+                              onClick={() => setAds(prev => prev.map(a => a.id === ad.id ? { ...a, status: "approved" } : a))}
+                              className="flex-1 flex items-center justify-center gap-1.5 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 text-xs font-semibold py-2 rounded-lg active:opacity-80"
+                            >
+                              <Icon name="Check" size={13} /> Одобрить
+                            </button>
+                            <button
+                              onClick={() => setAds(prev => prev.map(a => a.id === ad.id ? { ...a, status: "rejected" } : a))}
+                              className="flex-1 flex items-center justify-center gap-1.5 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 text-xs font-semibold py-2 rounded-lg active:opacity-80"
+                            >
+                              <Icon name="X" size={13} /> Отклонить
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-                {pendingAds.length > 0 && (
-                  <div className="border-t border-amber-200 dark:border-amber-800 px-4 py-3 space-y-2">
-                    {pendingAds.map(ad => (
-                      <div key={ad.id} className="bg-white dark:bg-card rounded-lg border border-amber-200 dark:border-amber-800 p-3">
-                        <p className="text-sm font-semibold text-foreground">{ad.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{ad.text}</p>
-                        <p className="text-xs text-muted-foreground mt-1">от {ad.author} · {ad.date}</p>
-                        <div className="flex gap-2 mt-2.5">
+
+                {/* Все объявления */}
+                <div className="border-b border-border">
+                  <button
+                    onClick={() => setAdminSection(v => v === "all-ads" ? null : "all-ads")}
+                    className="w-full flex items-center justify-between px-4 py-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon name="LayoutList" size={15} className="text-violet-500" />
+                      <span className="text-sm font-medium text-foreground">Все объявления</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">{ads.length}</span>
+                      <Icon name={adminSection === "all-ads" ? "ChevronUp" : "ChevronDown"} size={15} className="text-muted-foreground" />
+                    </div>
+                  </button>
+                  {adminSection === "all-ads" && (
+                    <div className="px-4 pb-3 space-y-2 animate-fade-in">
+                      {ads.length === 0 && <p className="text-xs text-muted-foreground text-center py-3">Нет объявлений</p>}
+                      {ads.map(ad => (
+                        <div key={ad.id} className="flex items-start justify-between gap-2 bg-muted/40 rounded-lg p-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">{ad.title}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{ad.author} · {ad.date}</p>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusLabel[ad.status].color}`}>{statusLabel[ad.status].label}</span>
+                          </div>
                           <button
-                            onClick={() => setAds(prev => prev.map(a => a.id === ad.id ? { ...a, status: "approved" } : a))}
-                            className="flex-1 flex items-center justify-center gap-1.5 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 text-xs font-semibold py-2 rounded-lg active:opacity-80"
+                            onClick={() => setAds(prev => prev.filter(a => a.id !== ad.id))}
+                            className="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0 active:opacity-70"
                           >
-                            <Icon name="Check" size={14} /> Одобрить
-                          </button>
-                          <button
-                            onClick={() => setAds(prev => prev.map(a => a.id === ad.id ? { ...a, status: "rejected" } : a))}
-                            className="flex-1 flex items-center justify-center gap-1.5 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 text-xs font-semibold py-2 rounded-lg active:opacity-80"
-                          >
-                            <Icon name="X" size={14} /> Отклонить
+                            <Icon name="Trash2" size={13} className="text-red-500" />
                           </button>
                         </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Управление новостями */}
+                <div className="border-b border-border">
+                  <button
+                    onClick={() => setAdminSection(v => v === "news" ? null : "news")}
+                    className="w-full flex items-center justify-between px-4 py-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon name="Newspaper" size={15} className="text-blue-500" />
+                      <span className="text-sm font-medium text-foreground">Новости</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">{news.length}</span>
+                      <Icon name={adminSection === "news" ? "ChevronUp" : "ChevronDown"} size={15} className="text-muted-foreground" />
+                    </div>
+                  </button>
+                  {adminSection === "news" && (
+                    <div className="px-4 pb-3 space-y-3 animate-fade-in">
+                      {/* Форма добавления новости */}
+                      <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg p-3 space-y-2">
+                        <p className="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Добавить новость</p>
+                        <input
+                          type="text"
+                          placeholder="Заголовок..."
+                          value={newNewsForm.title}
+                          onChange={e => setNewNewsForm(p => ({ ...p, title: e.target.value }))}
+                          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-foreground placeholder:text-muted-foreground"
+                        />
+                        <textarea
+                          rows={2}
+                          placeholder="Текст новости..."
+                          value={newNewsForm.text}
+                          onChange={e => setNewNewsForm(p => ({ ...p, text: e.target.value }))}
+                          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none text-foreground placeholder:text-muted-foreground"
+                        />
+                        <select
+                          value={newNewsForm.category}
+                          onChange={e => setNewNewsForm(p => ({ ...p, category: e.target.value }))}
+                          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none text-foreground"
+                        >
+                          {["ЖКХ", "События", "Транспорт", "Благоустройство", "Торговля", "Важное"].map(c => <option key={c}>{c}</option>)}
+                        </select>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={newNewsForm.pinned} onChange={e => setNewNewsForm(p => ({ ...p, pinned: e.target.checked }))} className="rounded" />
+                          <span className="text-xs text-foreground">Закрепить в топе</span>
+                        </label>
+                        <button
+                          onClick={() => {
+                            if (!newNewsForm.title.trim() || !newNewsForm.text.trim()) return;
+                            const today = new Date().toLocaleDateString("ru", { day: "numeric", month: "short" }).replace(".", "");
+                            setNews(prev => [{
+                              id: Date.now(),
+                              title: newNewsForm.title,
+                              text: newNewsForm.text,
+                              category: newNewsForm.category,
+                              date: today,
+                              pinned: newNewsForm.pinned,
+                              isNew: true,
+                            }, ...prev]);
+                            setNewNewsForm({ title: "", text: "", category: "ЖКХ", pinned: false });
+                            setNewNewsCount(n => n + 1);
+                          }}
+                          disabled={!newNewsForm.title.trim() || !newNewsForm.text.trim()}
+                          className="w-full bg-primary text-white text-xs font-semibold py-2 rounded-lg disabled:opacity-40 active:opacity-80"
+                        >
+                          Опубликовать
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                )}
+                      {/* Список новостей */}
+                      {news.length === 0 && <p className="text-xs text-muted-foreground text-center py-2">Нет новостей</p>}
+                      {news.map(n => (
+                        <div key={n.id} className="flex items-start justify-between gap-2 bg-muted/40 rounded-lg p-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              {n.pinned && <Icon name="Pin" size={11} className="text-primary shrink-0" />}
+                              <p className="text-sm font-medium text-foreground truncate">{n.title}</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">{n.category} · {n.date}</p>
+                          </div>
+                          <button
+                            onClick={() => setNews(prev => prev.filter(item => item.id !== n.id))}
+                            className="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0 active:opacity-70"
+                          >
+                            <Icon name="Trash2" size={13} className="text-red-500" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Сообщения чата */}
+                <div>
+                  <button
+                    onClick={() => setAdminSection(v => v === "chat" ? null : "chat")}
+                    className="w-full flex items-center justify-between px-4 py-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon name="MessageCircle" size={15} className="text-green-500" />
+                      <span className="text-sm font-medium text-foreground">Сообщения чата</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">{messages.length}</span>
+                      <Icon name={adminSection === "chat" ? "ChevronUp" : "ChevronDown"} size={15} className="text-muted-foreground" />
+                    </div>
+                  </button>
+                  {adminSection === "chat" && (
+                    <div className="px-4 pb-3 space-y-2 animate-fade-in">
+                      {messages.length === 0 && <p className="text-xs text-muted-foreground text-center py-3">Нет сообщений</p>}
+                      {[...messages].reverse().map(msg => (
+                        <div key={msg.id} className="flex items-start justify-between gap-2 bg-muted/40 rounded-lg p-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-foreground">{msg.author} <span className="font-normal text-muted-foreground">{msg.time}</span></p>
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{msg.text}</p>
+                          </div>
+                          <button
+                            onClick={() => setMessages(prev => prev.filter(m => m.id !== msg.id))}
+                            className="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0 active:opacity-70"
+                          >
+                            <Icon name="Trash2" size={13} className="text-red-500" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
