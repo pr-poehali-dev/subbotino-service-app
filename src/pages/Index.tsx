@@ -361,12 +361,7 @@ export default function Index() {
                 <h2 className="text-xl font-bold text-foreground">Новости посёлка</h2>
                 <p className="text-muted-foreground text-sm mt-0.5">Актуальные события</p>
               </div>
-              {isLive && (
-                <div className="flex items-center gap-1.5 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 text-xs font-semibold px-2.5 py-1.5 rounded-full mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
-                  Live
-                </div>
-              )}
+
             </div>
             <div className="px-4 space-y-2.5 pb-4">
               {news.map((item, i) => {
