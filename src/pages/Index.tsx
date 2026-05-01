@@ -148,17 +148,27 @@ function useThemeAndColor() {
 export default function Index() {
   const [tab, setTab] = useState<Tab>("news");
   const [openNewsId, setOpenNewsId] = useState<number | null>(null);
-  const [newsReactions, setNewsReactions] = useState<Record<number, NewsReactions>>({});
-  const [newsComments, setNewsComments] = useState<Record<number, NewsComment[]>>({});
+  const [newsReactions, setNewsReactions] = useState<Record<number, NewsReactions>>(() => {
+    try { return JSON.parse(localStorage.getItem("newsReactions") || "{}"); } catch { return {}; }
+  });
+  const [newsComments, setNewsComments] = useState<Record<number, NewsComment[]>>(() => {
+    try { return JSON.parse(localStorage.getItem("newsComments") || "{}"); } catch { return {}; }
+  });
   const [commentInputs, setCommentInputs] = useState<Record<number, string>>({});
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [openAdId, setOpenAdId] = useState<number | null>(null);
   const [adFilter, setAdFilter] = useState<string>("Все");
   const [phoneSearch, setPhoneSearch] = useState("");
   const [chatInput, setChatInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
-  const [ads, setAds] = useState<Ad[]>(INITIAL_ADS);
-  const [news, setNews] = useState<NewsItem[]>(NEWS_POOL);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    try { return JSON.parse(localStorage.getItem("messages") || "[]"); } catch { return []; }
+  });
+  const [ads, setAds] = useState<Ad[]>(() => {
+    try { return JSON.parse(localStorage.getItem("ads") || "[]"); } catch { return []; }
+  });
+  const [news, setNews] = useState<NewsItem[]>(() => {
+    try { return JSON.parse(localStorage.getItem("news") || "[]"); } catch { return []; }
+  });
   const [profileMyAdsOpen, setProfileMyAdsOpen] = useState(false);
   const [showNewAd, setShowNewAd] = useState(false);
   const [newAd, setNewAd] = useState({ title: "", text: "", category: "Продам", phone: "", photo: "" });
@@ -185,6 +195,13 @@ export default function Index() {
     if (tab !== "news") setOpenNewsId(null);
     if (tab !== "ads") setOpenAdId(null);
   }, [tab]);
+
+  // Persist data to localStorage
+  useEffect(() => { localStorage.setItem("news", JSON.stringify(news)); }, [news]);
+  useEffect(() => { localStorage.setItem("ads", JSON.stringify(ads)); }, [ads]);
+  useEffect(() => { localStorage.setItem("messages", JSON.stringify(messages)); }, [messages]);
+  useEffect(() => { localStorage.setItem("newsReactions", JSON.stringify(newsReactions)); }, [newsReactions]);
+  useEffect(() => { localStorage.setItem("newsComments", JSON.stringify(newsComments)); }, [newsComments]);
 
   const navItems: { id: Tab; icon: string; label: string }[] = [
     { id: "news", icon: "Newspaper", label: "Новости" },
