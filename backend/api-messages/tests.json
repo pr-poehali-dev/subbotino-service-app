@@ -1,0 +1,5 @@
+{
+  "tests": [
+    {"name": "GET messages list", "method": "GET", "path": "/", "expectedStatus": 200}
+  ]
+}

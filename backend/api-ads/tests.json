@@ -1,0 +1,5 @@
+{
+  "tests": [
+    {"name": "GET ads list", "method": "GET", "path": "/", "expectedStatus": 200}
+  ]
+}

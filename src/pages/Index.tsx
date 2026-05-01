@@ -148,27 +148,18 @@ function useThemeAndColor() {
 export default function Index() {
   const [tab, setTab] = useState<Tab>("news");
   const [openNewsId, setOpenNewsId] = useState<number | null>(null);
-  const [newsReactions, setNewsReactions] = useState<Record<number, NewsReactions>>(() => {
-    try { return JSON.parse(localStorage.getItem("newsReactions") || "{}"); } catch { return {}; }
-  });
-  const [newsComments, setNewsComments] = useState<Record<number, NewsComment[]>>(() => {
-    try { return JSON.parse(localStorage.getItem("newsComments") || "{}"); } catch { return {}; }
-  });
+  const [newsReactions, setNewsReactions] = useState<Record<number, NewsReactions>>({});
+  const [newsComments, setNewsComments] = useState<Record<number, NewsComment[]>>({});
   const [commentInputs, setCommentInputs] = useState<Record<number, string>>({});
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [openAdId, setOpenAdId] = useState<number | null>(null);
   const [adFilter, setAdFilter] = useState<string>("Все");
   const [phoneSearch, setPhoneSearch] = useState("");
   const [chatInput, setChatInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>(() => {
-    try { return JSON.parse(localStorage.getItem("messages") || "[]"); } catch { return []; }
-  });
-  const [ads, setAds] = useState<Ad[]>(() => {
-    try { return JSON.parse(localStorage.getItem("ads") || "[]"); } catch { return []; }
-  });
-  const [news, setNews] = useState<NewsItem[]>(() => {
-    try { return JSON.parse(localStorage.getItem("news") || "[]"); } catch { return []; }
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [ads, setAds] = useState<Ad[]>([]);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [profileMyAdsOpen, setProfileMyAdsOpen] = useState(false);
   const [showNewAd, setShowNewAd] = useState(false);
   const [newAd, setNewAd] = useState({ title: "", text: "", category: "Продам", phone: "", photo: "" });
@@ -179,6 +170,36 @@ export default function Index() {
   const [newNewsForm, setNewNewsForm] = useState({ title: "", text: "", category: "ЖКХ", pinned: false });
   const chatEndRef = useRef<HTMLDivElement>(null);
   const { dark, setDark, accent, setAccent } = useThemeAndColor();
+
+  const API_NEWS = "https://functions.poehali.dev/ab198baa-e563-43b0-a3a4-5a13edcea4da";
+  const API_ADS = "https://functions.poehali.dev/4135c0fc-36d0-4abc-a1e9-a23bcd88c030";
+  const API_MESSAGES = "https://functions.poehali.dev/2e3299db-852a-4aeb-ab1a-f7fc1bd5a184";
+  const API_INTERACTIONS = "https://functions.poehali.dev/165a4d62-c0a2-4d0c-9207-f53133df71a6";
+
+  // Загрузка всех данных при старте
+  useEffect(() => {
+    Promise.all([
+      fetch(API_NEWS).then(r => r.json()),
+      fetch(API_ADS).then(r => r.json()),
+      fetch(API_MESSAGES).then(r => r.json()),
+      fetch(API_INTERACTIONS).then(r => r.json()),
+    ]).then(([newsData, adsData, messagesData, interactions]) => {
+      setNews(newsData);
+      setAds(adsData);
+      setMessages(messagesData);
+      const reactions: Record<number, NewsReactions> = {};
+      for (const [id, val] of Object.entries(interactions.reactions || {})) {
+        const v = val as { likes: number; dislikes: number };
+        reactions[Number(id)] = { likes: v.likes, dislikes: v.dislikes, myVote: null };
+      }
+      setNewsReactions(reactions);
+      const comments: Record<number, NewsComment[]> = {};
+      for (const [id, arr] of Object.entries(interactions.comments || {})) {
+        comments[Number(id)] = arr as NewsComment[];
+      }
+      setNewsComments(comments);
+    }).finally(() => setLoading(false));
+  }, []);
 
   // Auto scroll chat
   useEffect(() => {
@@ -195,13 +216,6 @@ export default function Index() {
     if (tab !== "news") setOpenNewsId(null);
     if (tab !== "ads") setOpenAdId(null);
   }, [tab]);
-
-  // Persist data to localStorage
-  useEffect(() => { localStorage.setItem("news", JSON.stringify(news)); }, [news]);
-  useEffect(() => { localStorage.setItem("ads", JSON.stringify(ads)); }, [ads]);
-  useEffect(() => { localStorage.setItem("messages", JSON.stringify(messages)); }, [messages]);
-  useEffect(() => { localStorage.setItem("newsReactions", JSON.stringify(newsReactions)); }, [newsReactions]);
-  useEffect(() => { localStorage.setItem("newsComments", JSON.stringify(newsComments)); }, [newsComments]);
 
   const navItems: { id: Tab; icon: string; label: string }[] = [
     { id: "news", icon: "Newspaper", label: "Новости" },
@@ -228,33 +242,22 @@ export default function Index() {
     return acc;
   }, {});
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!chatInput.trim()) return;
-    setMessages(prev => [...prev, {
-      id: Date.now(),
-      author: "Вы",
-      text: chatInput,
-      time: new Date().toLocaleTimeString("ru", { hour: "2-digit", minute: "2-digit" }),
-      mine: true,
-      isNew: true,
-    }]);
+    const time = new Date().toLocaleTimeString("ru", { hour: "2-digit", minute: "2-digit" });
+    const text = chatInput;
     setChatInput("");
+    const res = await fetch(API_MESSAGES, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ author: "Вы", text, time, mine: true }) });
+    const data = await res.json();
+    setMessages(prev => [...prev, { id: data.id, author: "Вы", text, time, mine: true, isNew: true }]);
   };
 
-  const submitAd = () => {
+  const submitAd = async () => {
     if (!newAd.title.trim() || !newAd.text.trim()) return;
-    setAds(prev => [{
-      id: Date.now(),
-      title: newAd.title,
-      text: newAd.text,
-      author: "Вы",
-      date: "Сегодня",
-      category: newAd.category,
-      status: "pending",
-      phone: newAd.phone || undefined,
-      photo: newAd.photo || undefined,
-      isNew: true,
-    }, ...prev]);
+    const today = new Date().toLocaleDateString("ru", { day: "numeric", month: "short" }).replace(".", "");
+    const res = await fetch(API_ADS, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...newAd, author: "Вы", date: today }) });
+    const data = await res.json();
+    setAds(prev => [{ id: data.id, title: newAd.title, text: newAd.text, author: "Вы", date: today, category: newAd.category, status: "pending", phone: newAd.phone || undefined, photo: newAd.photo || undefined, isNew: true }, ...prev]);
     setNewAd({ title: "", text: "", category: "Продам", phone: "", photo: "" });
     setShowNewAd(false);
   };
@@ -276,20 +279,26 @@ export default function Index() {
   const vote = (id: number, type: "like" | "dislike") => {
     setNewsReactions(prev => {
       const cur = getReaction(id);
+      let next: NewsReactions;
       if (cur.myVote === type) {
-        return { ...prev, [id]: { ...cur, [type === "like" ? "likes" : "dislikes"]: (type === "like" ? cur.likes : cur.dislikes) - 1, myVote: null } };
+        next = { ...cur, [type === "like" ? "likes" : "dislikes"]: (type === "like" ? cur.likes : cur.dislikes) - 1, myVote: null };
+      } else {
+        next = { ...cur, myVote: type };
+        if (type === "like") { next.likes = cur.likes + 1; if (cur.myVote === "dislike") next.dislikes = cur.dislikes - 1; }
+        else { next.dislikes = cur.dislikes + 1; if (cur.myVote === "like") next.likes = cur.likes - 1; }
       }
-      const next = { ...cur, myVote: type };
-      if (type === "like") { next.likes = cur.likes + 1; if (cur.myVote === "dislike") next.dislikes = cur.dislikes - 1; }
-      else { next.dislikes = cur.dislikes + 1; if (cur.myVote === "like") next.likes = cur.likes - 1; }
+      fetch(API_INTERACTIONS + "?action=reaction", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ news_id: id, likes: next.likes, dislikes: next.dislikes }) });
       return { ...prev, [id]: next };
     });
   };
 
-  const addComment = (newsId: number) => {
+  const addComment = async (newsId: number) => {
     const text = (commentInputs[newsId] || "").trim();
     if (!text) return;
-    const comment: NewsComment = { id: Date.now(), author: "Вы", text, time: new Date().toLocaleTimeString("ru", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) };
+    const time = new Date().toLocaleTimeString("ru", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" });
+    const res = await fetch(API_INTERACTIONS + "?action=comment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ news_id: newsId, author: "Вы", text, time }) });
+    const data = await res.json();
+    const comment: NewsComment = { id: data.id, author: "Вы", text, time };
     setNewsComments(prev => ({ ...prev, [newsId]: [...(prev[newsId] || []), comment] }));
     setCommentInputs(prev => ({ ...prev, [newsId]: "" }));
   };
@@ -298,6 +307,15 @@ export default function Index() {
   const openedAd = openAdId !== null ? ads.find(a => a.id === openAdId) ?? null : null;
 
 
+
+  if (loading) return (
+    <div className="min-h-screen bg-background flex items-center justify-center max-w-lg mx-auto">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <p className="text-sm text-muted-foreground">Загрузка...</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto relative">
@@ -963,13 +981,13 @@ export default function Index() {
                           {ad.phone && <p className="text-xs text-muted-foreground">тел: {ad.phone}</p>}
                           <div className="flex gap-2 mt-2.5">
                             <button
-                              onClick={() => setAds(prev => prev.map(a => a.id === ad.id ? { ...a, status: "approved" } : a))}
+                              onClick={() => { fetch(API_ADS, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: ad.id, status: "approved" }) }); setAds(prev => prev.map(a => a.id === ad.id ? { ...a, status: "approved" } : a)); }}
                               className="flex-1 flex items-center justify-center gap-1.5 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 text-xs font-semibold py-2 rounded-lg active:opacity-80"
                             >
                               <Icon name="Check" size={13} /> Одобрить
                             </button>
                             <button
-                              onClick={() => setAds(prev => prev.map(a => a.id === ad.id ? { ...a, status: "rejected" } : a))}
+                              onClick={() => { fetch(API_ADS, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: ad.id, status: "rejected" }) }); setAds(prev => prev.map(a => a.id === ad.id ? { ...a, status: "rejected" } : a)); }}
                               className="flex-1 flex items-center justify-center gap-1.5 bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 text-xs font-semibold py-2 rounded-lg active:opacity-80"
                             >
                               <Icon name="X" size={13} /> Отклонить
@@ -1007,7 +1025,7 @@ export default function Index() {
                             <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusLabel[ad.status].color}`}>{statusLabel[ad.status].label}</span>
                           </div>
                           <button
-                            onClick={() => setAds(prev => prev.filter(a => a.id !== ad.id))}
+                            onClick={() => { fetch(API_ADS + "?id=" + ad.id, { method: "DELETE" }); setAds(prev => prev.filter(a => a.id !== ad.id)); }}
                             className="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0 active:opacity-70"
                           >
                             <Icon name="Trash2" size={13} className="text-red-500" />
@@ -1064,18 +1082,12 @@ export default function Index() {
                           <span className="text-xs text-foreground">Закрепить в топе</span>
                         </label>
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             if (!newNewsForm.title.trim() || !newNewsForm.text.trim()) return;
                             const today = new Date().toLocaleDateString("ru", { day: "numeric", month: "short" }).replace(".", "");
-                            setNews(prev => [{
-                              id: Date.now(),
-                              title: newNewsForm.title,
-                              text: newNewsForm.text,
-                              category: newNewsForm.category,
-                              date: today,
-                              pinned: newNewsForm.pinned,
-                              isNew: true,
-                            }, ...prev]);
+                            const res = await fetch(API_NEWS, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...newNewsForm, date: today }) });
+                            const data = await res.json();
+                            setNews(prev => [{ id: data.id, title: newNewsForm.title, text: newNewsForm.text, category: newNewsForm.category, date: today, pinned: newNewsForm.pinned, isNew: true }, ...prev]);
                             setNewNewsForm({ title: "", text: "", category: "ЖКХ", pinned: false });
                             setNewNewsCount(n => n + 1);
                           }}
@@ -1097,7 +1109,7 @@ export default function Index() {
                             <p className="text-xs text-muted-foreground mt-0.5">{n.category} · {n.date}</p>
                           </div>
                           <button
-                            onClick={() => setNews(prev => prev.filter(item => item.id !== n.id))}
+                            onClick={() => { fetch(API_NEWS + "?id=" + n.id, { method: "DELETE" }); setNews(prev => prev.filter(item => item.id !== n.id)); }}
                             className="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0 active:opacity-70"
                           >
                             <Icon name="Trash2" size={13} className="text-red-500" />
@@ -1133,7 +1145,7 @@ export default function Index() {
                             <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{msg.text}</p>
                           </div>
                           <button
-                            onClick={() => setMessages(prev => prev.filter(m => m.id !== msg.id))}
+                            onClick={() => { fetch(API_MESSAGES + "?id=" + msg.id, { method: "DELETE" }); setMessages(prev => prev.filter(m => m.id !== msg.id)); }}
                             className="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0 active:opacity-70"
                           >
                             <Icon name="Trash2" size={13} className="text-red-500" />
