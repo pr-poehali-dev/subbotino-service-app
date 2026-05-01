@@ -710,7 +710,7 @@ export default function Index() {
           const phone = ad.phone;
           const phoneClean = phone ? phone.replace(/\D/g, "") : "";
           const tgLink = phone ? `https://t.me/+${phoneClean}` : null;
-          const waLink = phone ? `https://wa.me/${phoneClean}` : null;
+          const maxLink = phone ? `https://max.ru/call/${phoneClean}` : null;
           return (
             <div className="animate-fade-in">
               <div className="px-4 pt-5 pb-32">
@@ -763,15 +763,15 @@ export default function Index() {
                           <Icon name="Send" size={16} className="text-sky-500" />
                         </a>
                       )}
-                      {waLink && (
+                      {maxLink && (
                         <a
-                          href={waLink}
+                          href={maxLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-9 h-9 rounded-lg bg-green-100 dark:bg-green-950 flex items-center justify-center active:opacity-70"
-                          title="WhatsApp"
+                          className="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-950 flex items-center justify-center active:opacity-70"
+                          title="Max"
                         >
-                          <Icon name="MessageCircle" size={16} className="text-green-500" />
+                          <span className="text-violet-600 font-black text-[11px] leading-none">max</span>
                         </a>
                       )}
                     </div>
